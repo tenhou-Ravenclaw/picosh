@@ -1,0 +1,15 @@
+{
+  "name": "picosh",
+  "version": "0.3.0",
+  "description": "WezTerm config: clipboard image paste + Claude Code tab glow indicator",
+  "license": "MIT",
+  "keywords": ["wezterm", "claude", "ai", "terminal", "clipboard", "windows"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tenhou-Ravenclaw/picosh"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "preuninstall": "node scripts/preuninstall.js"
+  }
+}
