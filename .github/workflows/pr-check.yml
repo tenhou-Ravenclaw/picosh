@@ -1,0 +1,22 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check version bump
+        run: |
+          BASE_VERSION=$(git show origin/master:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version")
+          PR_VERSION=$(node -p "require('./package.json').version")
+          if [ "$BASE_VERSION" = "$PR_VERSION" ]; then
+            echo "❌ package.json のバージョンが上がっていません (現在: $PR_VERSION)"
+            exit 1
+          fi
+          echo "✅ $BASE_VERSION → $PR_VERSION"
