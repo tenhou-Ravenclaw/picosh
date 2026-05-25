@@ -13,13 +13,63 @@ wezterm.on('user-var-changed', function(window, pane, name, value)
   end
 end)
 
+-- ─── status bar ──────────────────────────────────────────────────────────
+
+local branch_cache = {}   -- keyed by cwd
+local BRANCH_REFRESH = 20  -- ticks (~3 seconds)
+
+local function get_cwd(pane)
+  local uri = pane:get_current_working_dir()
+  if not uri then return nil end
+  local p = uri.file_path or tostring(uri)
+  p = p:gsub('^/', ''):gsub('[/\\]+$', '')  -- strip leading / and trailing slash
+  return p ~= '' and p or nil
+end
+
+local function get_branch(cwd)
+  local c = branch_cache[cwd] or {value = nil, at = -999}
+  if tick - c.at < BRANCH_REFRESH then return c.value end
+  local ok, stdout, _ = wezterm.run_child_process({'git', '-C', cwd, 'branch', '--show-current'})
+  c.value = (ok and stdout and stdout:gsub('%s', '') ~= '') and stdout:gsub('%s+$', '') or nil
+  c.at = tick
+  branch_cache[cwd] = c
+  return c.value
+end
+
+local function get_cwd(text)
+  -- Parse PowerShell prompt: "PS C:\path\to\dir>"
+  -- Match the LAST occurrence so we get the most recent prompt
+  local path = nil
+  for p in text:gmatch('PS ([A-Za-z]:[^\r\n>]+)>') do path = p end
+  return path and path:gsub('%s+$', '') or nil
+end
+
 -- Always poll: handles both on/off detection as before
 -- hook-based detection above is additive (fires before text is visible)
 wezterm.on('update-status', function(window, pane)
   tick = tick + 1
-  local text = pane:get_lines_as_text(5)
-  waiting_panes[pane:pane_id()] = text:match('%? for shortcuts') ~= nil
-  window:set_right_status('')
+  local text5 = pane:get_lines_as_text(5)
+  waiting_panes[pane:pane_id()] = text5:match('%? for shortcuts') ~= nil
+
+  local parts = {}
+
+  -- Use more lines for cwd so the prompt is found even near top of screen
+  local text50 = pane:get_lines_as_text(50)
+  local cwd = get_cwd(text50)
+  if cwd then
+    local branch = get_branch(cwd)
+    if branch then
+      local dir = cwd:match('[^\\/]+$') or cwd
+      table.insert(parts, dir)
+      table.insert(parts, ' ' .. branch)
+    end
+  end
+
+  if #parts > 0 then
+    window:set_right_status(' ' .. table.concat(parts, '  ') .. ' ')
+  else
+    window:set_right_status('')
+  end
 end)
 
 wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
