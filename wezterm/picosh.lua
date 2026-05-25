@@ -64,6 +64,11 @@ wezterm.on('update-status', function(window, pane)
 
   local parts = {}
 
+  local workspace = window:active_workspace()
+  if workspace and workspace ~= 'default' then
+    table.insert(parts, '󱂬 ' .. workspace)
+  end
+
   -- Use more lines for cwd so the prompt is found even near top of screen
   local text50 = pane:get_lines_as_text(50)
   local cwd = get_cwd(text50)
@@ -174,6 +179,13 @@ function M.apply(config)
     key = 'z',
     mods = 'CTRL',
     action = wezterm.action.TogglePaneZoomState,
+  })
+
+  -- Ctrl+Shift+S: workspace switcher (type new name to create)
+  table.insert(keys, {
+    key = 's',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ShowLauncherArgs { flags = 'WORKSPACES' },
   })
 
   -- Ctrl+Shift+N: show notification log in a new pane
