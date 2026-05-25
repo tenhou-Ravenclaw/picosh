@@ -76,10 +76,19 @@ wezterm.on('update-status', function(window, pane)
     end
   end
 
-  if #parts > 0 then
-    window:set_right_status(' ' .. table.concat(parts, '  ') .. ' ')
+  local status_text = #parts > 0 and (' ' .. table.concat(parts, '  ') .. ' ') or ''
+
+  if is_waiting then
+    -- Include animated value in right_status to force format-tab-title repaint every tick
+    local phase = (tick * 0.35) % (2 * math.pi)
+    local v = math.floor(158 + 80 * math.sin(phase))
+    window:set_right_status(wezterm.format({
+      { Text = status_text },
+      { Foreground = { Color = string.format('#%02x%02x%02x', 74, v, 255) } },
+      { Text = ' ●' },
+    }))
   else
-    window:set_right_status('')
+    window:set_right_status(status_text)
   end
 end)
 
