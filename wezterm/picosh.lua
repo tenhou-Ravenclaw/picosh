@@ -163,6 +163,12 @@ function M.apply(config)
     action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
   })
 
+  -- Alt+arrows: move between panes
+  table.insert(keys, { key = 'UpArrow',    mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Up' })
+  table.insert(keys, { key = 'DownArrow',  mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Down' })
+  table.insert(keys, { key = 'LeftArrow',  mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Left' })
+  table.insert(keys, { key = 'RightArrow', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Right' })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
