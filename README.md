@@ -8,12 +8,23 @@ Two features:
 
 ## install
 
+**PowerShell (recommended — no Node.js required):**
+
+```powershell
+irm https://raw.githubusercontent.com/tenhou-Ravenclaw/picosh/master/install.ps1 | iex
+```
+
+**npm:**
+
 ```sh
 npm install -g picosh
 ```
 
-The postinstall script copies the WezTerm config files to `~/.config/wezterm/`.  
-If WezTerm isn't installed, it installs it first via winget.
+**Uninstall:**
+
+```powershell
+irm https://raw.githubusercontent.com/tenhou-Ravenclaw/picosh/master/uninstall.ps1 | iex
+```
 
 ### manual setup
 
