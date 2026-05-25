@@ -123,6 +123,13 @@ function M.apply(config)
     action = wezterm.action.SpawnTab 'CurrentPaneDomain',
   })
 
+  -- Ctrl+W: close active pane (tab closes automatically when last pane is removed)
+  table.insert(keys, {
+    key = 'w',
+    mods = 'CTRL',
+    action = wezterm.action.CloseCurrentPane { confirm = false },
+  })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
