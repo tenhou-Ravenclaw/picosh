@@ -1,6 +1,6 @@
 {
   "name": "picosh",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "WezTerm config: clipboard image paste + Claude Code tab glow indicator",
   "license": "MIT",
   "keywords": ["wezterm", "claude", "ai", "terminal", "clipboard", "windows"],
