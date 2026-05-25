@@ -151,6 +151,18 @@ function M.apply(config)
     })
   end
 
+  -- Ctrl+D: split right, Ctrl+Shift+D: split down
+  table.insert(keys, {
+    key = 'd',
+    mods = 'CTRL',
+    action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },
+  })
+  table.insert(keys, {
+    key = 'd',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
+  })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
