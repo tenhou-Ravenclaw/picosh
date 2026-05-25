@@ -116,6 +116,13 @@ function M.apply(config)
   local ps1 = wezterm.config_dir .. '\\clipboard_image.ps1'
   local keys = config.keys or {}
 
+  -- Ctrl+T: new tab
+  table.insert(keys, {
+    key = 't',
+    mods = 'CTRL',
+    action = wezterm.action.SpawnTab 'CurrentPaneDomain',
+  })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
