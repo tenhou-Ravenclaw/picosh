@@ -169,6 +169,13 @@ function M.apply(config)
   table.insert(keys, { key = 'LeftArrow',  mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Left' })
   table.insert(keys, { key = 'RightArrow', mods = 'ALT', action = wezterm.action.ActivatePaneDirection 'Right' })
 
+  -- Ctrl+Z: zoom/unzoom active pane
+  table.insert(keys, {
+    key = 'z',
+    mods = 'CTRL',
+    action = wezterm.action.TogglePaneZoomState,
+  })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
