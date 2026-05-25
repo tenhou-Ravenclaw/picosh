@@ -17,9 +17,7 @@ const WEZTERM_EXE_PATHS = [
 
 const WEZTERM_CONFIG_DIR = path.join(os.homedir(), '.config', 'wezterm');
 const SRC_DIR = path.join(__dirname, '..', 'wezterm');
-
-// Files managed by picosh (never touch wezterm.lua if it already exists)
-const PICOSH_FILES = ['picosh.lua', 'clipboard_image.ps1'];
+const PICOSH_FILES = ['picosh.lua', 'picosh-notify.ps1', 'clipboard_image.ps1'];
 
 function weztermInstalled() {
   return WEZTERM_EXE_PATHS.some((p) => fs.existsSync(p));
@@ -65,10 +63,44 @@ function copyConfigs() {
   }
 }
 
+function registerClaudeHook() {
+  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  const notifyScript = path.join(WEZTERM_CONFIG_DIR, 'picosh-notify.ps1');
+  const hookCommand = `powershell.exe -NoProfile -NonInteractive -File "${notifyScript}"`;
+
+  let settings = {};
+  if (fs.existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    } catch (e) {
+      console.error('[picosh] Could not parse ~/.claude/settings.json, skipping hook registration');
+      return;
+    }
+  }
+
+  if (!settings.hooks) settings.hooks = {};
+  if (!settings.hooks.Stop) settings.hooks.Stop = [];
+
+  const alreadyRegistered = settings.hooks.Stop.some((entry) =>
+    entry.hooks && entry.hooks.some((h) => h.command && h.command.includes('picosh-notify'))
+  );
+
+  if (!alreadyRegistered) {
+    settings.hooks.Stop.push({
+      matcher: '',
+      hooks: [{type: 'command', command: hookCommand}],
+    });
+    fs.mkdirSync(path.dirname(settingsPath), {recursive: true});
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    console.error('[picosh] Registered Stop hook in ~/.claude/settings.json');
+  }
+}
+
 if (!weztermInstalled()) {
   const ok = installWezterm();
   if (!ok) process.exit(0);
 }
 
 copyConfigs();
+registerClaudeHook();
 console.error('[picosh] Done! Launch WezTerm to start using picosh.');

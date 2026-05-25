@@ -6,6 +6,15 @@ local M = {}
 local waiting_panes = {}
 local tick = 0
 
+-- Primary: Claude Code Stop hook sends OSC SetUserVar → fires this event
+wezterm.on('user-var-changed', function(window, pane, name, value)
+  if name == 'picosh_waiting' then
+    waiting_panes[pane:pane_id()] = true
+  end
+end)
+
+-- Always poll: handles both on/off detection as before
+-- hook-based detection above is additive (fires before text is visible)
 wezterm.on('update-status', function(window, pane)
   tick = tick + 1
   local text = pane:get_lines_as_text(5)
