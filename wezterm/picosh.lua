@@ -142,6 +142,15 @@ function M.apply(config)
     action = wezterm.action.ActivateTabRelative(-1),
   })
 
+  -- Ctrl+1~9: jump to tab by index
+  for i = 1, 9 do
+    table.insert(keys, {
+      key = tostring(i),
+      mods = 'CTRL',
+      action = wezterm.action.ActivateTab(i - 1),
+    })
+  end
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
