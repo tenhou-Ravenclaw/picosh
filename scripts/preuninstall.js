@@ -5,10 +5,9 @@ const os = require('os');
 const fs = require('fs');
 
 const WEZTERM_CONFIG_DIR = path.join(os.homedir(), '.config', 'wezterm');
-const SRC_DIR = path.join(__dirname, '..', 'wezterm');
+const PICOSH_FILES = ['picosh.lua', 'clipboard_image.ps1'];
 
-const files = fs.readdirSync(SRC_DIR);
-for (const file of files) {
+for (const file of PICOSH_FILES) {
   const dest = path.join(WEZTERM_CONFIG_DIR, file);
   const bak = dest + '.bak';
   try {
