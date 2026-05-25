@@ -130,6 +130,18 @@ function M.apply(config)
     action = wezterm.action.CloseCurrentPane { confirm = false },
   })
 
+  -- Ctrl+Tab / Ctrl+Shift+Tab: next/prev tab
+  table.insert(keys, {
+    key = 'Tab',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTabRelative(1),
+  })
+  table.insert(keys, {
+    key = 'Tab',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ActivateTabRelative(-1),
+  })
+
   -- Ctrl+Shift+N: show notification log in a new pane
   table.insert(keys, {
     key = 'n',
