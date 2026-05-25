@@ -4,7 +4,9 @@ local M = {}
 -- ─── AI waiting indicator ─────────────────────────────────────────────────
 
 local waiting_panes = {}
+local prev_waiting = {}
 local tick = 0
+local NOTIFY_LOG = (os.getenv('TEMP') or os.getenv('TMP') or '') .. '\\picosh\\notifications.log'
 
 -- Primary: Claude Code Stop hook sends OSC SetUserVar → fires this event
 wezterm.on('user-var-changed', function(window, pane, name, value)
@@ -48,8 +50,17 @@ end
 -- hook-based detection above is additive (fires before text is visible)
 wezterm.on('update-status', function(window, pane)
   tick = tick + 1
+  local pane_id = pane:pane_id()
   local text5 = pane:get_lines_as_text(5)
-  waiting_panes[pane:pane_id()] = text5:match('%? for shortcuts') ~= nil
+  local is_waiting = text5:match('%? for shortcuts') ~= nil
+
+  if is_waiting and not prev_waiting[pane_id] then
+    if wezterm.toast_notification then
+      wezterm.toast_notification('picosh', 'Claude Code is waiting for input', nil, 4000)
+    end
+  end
+  prev_waiting[pane_id] = is_waiting
+  waiting_panes[pane_id] = is_waiting
 
   local parts = {}
 
@@ -95,6 +106,24 @@ function M.apply(config)
 
   local ps1 = wezterm.config_dir .. '\\clipboard_image.ps1'
   local keys = config.keys or {}
+
+  -- Ctrl+Shift+N: show notification log in a new pane
+  table.insert(keys, {
+    key = 'n',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action_callback(function(window, pane)
+      window:perform_action(
+        wezterm.action.SpawnCommandInNewTab {
+          args = {
+            'pwsh.exe', '-NoProfile', '-Command',
+            'if (Test-Path "' .. NOTIFY_LOG .. '") { Get-Content "' .. NOTIFY_LOG .. '" -Wait } else { Write-Host "No notifications yet."; Start-Sleep 60 }',
+          },
+        },
+        pane
+      )
+    end),
+  })
+
   table.insert(keys, {
     key = 'v',
     mods = 'CTRL',
